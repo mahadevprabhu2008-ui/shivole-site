@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shivole — an assistant that asks first</title>
+<meta name="description" content="Shivole drafts the email, finds the ride, writes the reply — then stops and waits for you. Nothing is sent, booked or posted until you tap approve.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1218;
+    --ink-2:#171B24;
+    --line:#252B38;
+    --text:#E8ECF3;
+    --dim:#8A93A6;
+    --gold:#FFB454;
+    --mint:#3ECF8E;
+    --serif:'Instrument Serif',Georgia,serif;
+    --sans:'Inter',system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--ink);color:var(--text);
+    font:400 17px/1.65 var(--sans);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:940px;margin:0 auto;padding:0 24px}
+
+  /* ---------- header ---------- */
+  header{padding:28px 0;border-bottom:1px solid var(--line)}
+  .bar{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+  .mark{font:400 26px/1 var(--serif);letter-spacing:.01em}
+  .mark em{font-style:italic;color:var(--gold)}
+  nav a{color:var(--dim);text-decoration:none;font-size:14px;margin-left:22px}
+  nav a:hover,nav a:focus-visible{color:var(--text)}
+
+  /* ---------- hero ---------- */
+  .hero{padding:88px 0 72px;display:grid;gap:56px;grid-template-columns:1fr}
+  @media(min-width:860px){.hero{grid-template-columns:1.05fr .95fr;align-items:center}}
+  h1{
+    font:400 clamp(38px,6vw,62px)/1.06 var(--serif);
+    margin:0 0 20px;letter-spacing:-.01em;
+  }
+  h1 em{font-style:italic;color:var(--gold)}
+  .lede{color:var(--dim);font-size:19px;max-width:34ch;margin:0 0 28px}
+  .meta{font:500 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+        color:var(--dim);margin:0 0 22px}
+
+  /* ---------- the signature: an approval card, mid-decision ---------- */
+  .card{
+    background:var(--ink-2);border:1px solid var(--line);border-radius:16px;
+    padding:22px;box-shadow:0 24px 60px -30px #000;
+  }
+  .card-head{display:flex;align-items:center;gap:9px;
+             font:500 11px/1 var(--mono);letter-spacing:.13em;
+             text-transform:uppercase;color:var(--dim);margin-bottom:16px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);
+       animation:breathe 2.4s ease-in-out infinite}
+  @keyframes breathe{0%,100%{opacity:.35}50%{opacity:1}}
+  .field{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+  .field:last-of-type{border-bottom:0}
+  .k{color:var(--dim);min-width:62px;font:400 13px/1.6 var(--mono)}
+  .v{color:var(--text)}
+  .body-copy{color:var(--text);font-size:15px;line-height:1.6;padding:14px 0 4px}
+  .actions{display:flex;gap:10px;margin-top:16px}
+  .btn{
+    flex:1;border:0;border-radius:10px;padding:13px;cursor:pointer;
+    font:600 15px var(--sans);transition:transform .12s ease,filter .12s ease;
+  }
+  .btn:hover{transform:translateY(-1px)}
+  .btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .btn-yes{background:var(--gold);color:var(--ink)}
+  .btn-no{background:transparent;color:var(--dim);border:1px solid var(--line)}
+  .caption{margin:14px 0 0;font-size:13px;color:var(--dim);text-align:center}
+  .sent{display:none;align-items:center;gap:8px;justify-content:center;
+        color:var(--mint);font-size:15px;padding:13px 0}
+  .card.done .actions{display:none}
+  .card.done .sent{display:flex}
+  .card.done .dot{background:var(--mint);animation:none}
+
+  /* ---------- sections ---------- */
+  section{padding:64px 0;border-top:1px solid var(--line)}
+  h2{font:400 clamp(27px,4vw,36px)/1.15 var(--serif);margin:0 0 10px}
+  .sub{color:var(--dim);margin:0 0 34px;max-width:52ch}
+  .grid{display:grid;gap:22px;grid-template-columns:1fr}
+  @media(min-width:760px){.grid{grid-template-columns:repeat(3,1fr)}}
+  .tile{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:22px}
+  .tile h3{margin:0 0 8px;font:600 17px var(--sans)}
+  .tile p{margin:0;color:var(--dim);font-size:15px}
+
+  /* the honest list — what it refuses to do */
+  .refuse{display:grid;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .refuse div{padding:17px 20px;border-bottom:1px solid var(--line);
+              display:flex;gap:14px;align-items:flex-start;font-size:16px}
+  .refuse div:last-child{border-bottom:0}
+  .no{color:var(--gold);font:500 13px/1.5 var(--mono);flex-shrink:0}
+
+  /* ---------- plans ---------- */
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  th,td{text-align:left;padding:13px 10px;border-bottom:1px solid var(--line)}
+  th{font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+  td:first-child{font-weight:600}
+  .price{font:400 17px var(--serif);color:var(--gold)}
+
+  footer{padding:40px 0 60px;border-top:1px solid var(--line);color:var(--dim);font-size:14px}
+  footer a{color:var(--dim)}
+  footer a:hover{color:var(--text)}
+  .foot-row{display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between}
+
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="mark">shiv<em>o</em>le</div>
+    <nav>
+      <a href="#how">How it works</a>
+      <a href="#limits">Limits</a>
+      <a href="#plans">Plans</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="hero">
+    <div>
+      <p class="meta">Personal assistant · in development</p>
+      <h1>It does the work.<br>You say <em>go</em>.</h1>
+      <p class="lede">
+        Shivole drafts the email, finds the ride, writes the reply — then stops.
+        Nothing leaves your account until you tap approve.
+      </p>
+      <p class="caption" style="text-align:left;margin:0">
+        Try the card. It's the same one the app shows.
+      </p>
+    </div>
+
+    <!-- signature element: the moment the product is built around -->
+    <div class="card" id="card">
+      <div class="card-head"><span class="dot"></span><span id="state">Waiting for you</span></div>
+      <div class="field"><span class="k">To</span><span class="v">priya@company.com</span></div>
+      <div class="field"><span class="k">Subject</span><span class="v">Welcome to the team</span></div>
+      <p class="body-copy">
+        Hi Priya — really glad you're joining us. I've put half an hour in the
+        diary for Monday so I can walk you through what we're building. Shout
+        if that time doesn't suit.
+      </p>
+      <div class="actions">
+        <button class="btn btn-no" id="no">Not yet</button>
+        <button class="btn btn-yes" id="yes">Send it</button>
+      </div>
+      <div class="sent">✓ Sent to priya@company.com</div>
+    </div>
+  </div>
+
+  <section id="how">
+    <h2>What it actually does</h2>
+    <p class="sub">You ask in your own words. It figures out the steps, then brings you the finished thing to check.</p>
+    <div class="grid">
+      <div class="tile">
+        <h3>Writes your mail</h3>
+        <p>Finds the right contact, drafts in your voice, lands it in your Drafts folder. You read it before anyone else does.</p>
+      </div>
+      <div class="tile">
+        <h3>Handles your code inbox</h3>
+        <p>Pulls the issues and pull requests waiting on you, and drafts the reply you were putting off.</p>
+      </div>
+      <div class="tile">
+        <h3>Compares before you buy</h3>
+        <p>Prices across shops, rides across apps — side by side, with the ones that failed to answer shown honestly.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="limits">
+    <h2>What it won't do</h2>
+    <p class="sub">These aren't features we haven't got to. They're decisions.</p>
+    <div class="refuse">
+      <div><span class="no">never</span><span>Sends, posts, books or buys without you tapping approve on screen first.</span></div>
+      <div><span class="no">never</span><span>Sees your password. You sign in on Google's or GitHub's own page, not ours.</span></div>
+      <div><span class="no">never</span><span>Keeps a connected app's access after you disconnect it. The key is deleted, not disabled.</span></div>
+      <div><span class="no">never</span><span>Holds your chats forever. They're deleted after 90 days, and you can clear them sooner.</span></div>
+      <div><span class="no">never</span><span>Sells your data. There's no version of this where that pays better than the subscription.</span></div>
+    </div>
+  </section>
+
+  <section id="plans">
+    <h2>Plans</h2>
+    <p class="sub">Pay for the apps you connect and the questions you ask. Cancel in the store, any time.</p>
+    <table>
+      <thead>
+        <tr><th>Plan</th><th>Price</th><th>Connected apps</th><th>Questions / 3h</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Free</td><td class="price">—</td><td>1</td><td>10</td></tr>
+        <tr><td>Starter</td><td class="price">$15</td><td>3</td><td>50</td></tr>
+        <tr><td>Plus</td><td class="price">$25</td><td>6</td><td>50</td></tr>
+        <tr><td>Pro</td><td class="price">$35</td><td>7</td><td>50</td></tr>
+        <tr><td>Max</td><td class="price">$100</td><td>Unlimited</td><td>75</td></tr>
+        <tr><td>Ultra</td><td class="price">$300</td><td>Unlimited</td><td>Unlimited</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <span>Shivole · <a href="mailto:mahadevprabhu2008@gmail.com">mahadevprabhu2008@gmail.com</a></span>
+    <span>
+      <a href="privacy.html">Privacy</a> &nbsp;·&nbsp;
+      <a href="terms.html">Terms</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+  const card = document.getElementById('card');
+  const state = document.getElementById('state');
+  document.getElementById('yes').addEventListener('click', () => {
+    card.classList.add('done');
+    state.textContent = 'You approved it';
+  });
+  document.getElementById('no').addEventListener('click', () => {
+    state.textContent = 'Held. Nothing sent.';
+    card.querySelector('.dot').style.background = 'var(--dim)';
+  });
+</script>
+
+</body>
+</html>
